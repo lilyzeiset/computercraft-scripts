@@ -3,7 +3,6 @@
 ----- by lillory
 -----
 
-title = "Crafting Status"
 sleepTime = 3
 shouldLog = true
 
@@ -11,50 +10,67 @@ ae2 = peripheral.find("meBridge")
 mon = peripheral.find("monitor")
 
 items = require("items")
+row = 1
 
 function main()
-    prepareMonitor()
-
+    mon.clear()
     while true do
-        doTable()
+        cpuDetails()
+        itemsToCraft()
+        clearToEnd(row+1)
         sleep(sleepTime)
     end
 end
 
-
-function prepareMonitor()
-    mon.clear()
-    putText(title, 1, "center", colors.white)
-end
-
-function doTable()
-    row = 2
-    --Loop through the items and check if they need to be crafted
+--Loop through the items and check if they need to be crafted
+function itemsToCraft()
+    advAndClear()
+    putText("Crafting Status", row, "center", colors.white)
     for i = 1, #items do
         tName = items[i][2]
         dName = items[i][1]
         amt = items[i][3]
         stockItem(tName, dName, amt)
     end
+end
 
-    --Check if anything is currently crafting
-    --[[
-    craftable = ae2.listCraftableItems()
-    for i = 1, #craftable do
-        tName = items[i].name
-        dName = items[i][1]
-        amt = items[i][3]
-        checkCrafting(tName, dName, amt)
+function cpuDetails()
+    cpus = ae2.getCraftingCPUs()
+    if cpus then
+        advAndClear()
+        putText("Crafting CPUs", row, "center", colors.white)
+        for i=1,#cpus do
+            stor = cpus[i].storage
+            proc = cpus[i].coProcessors
+            busy = cpus[i].isBusy
+
+            --convert number to thous(k) or mils(M)
+            if stor > 999999 then
+                storStr = math.floor(stor/1000000).."M"
+            elseif stor > 999 then
+                storStr = math.floor(stor/1000).."k"
+            else
+                storStr = stor
+            end
+
+            --show if busy
+            if busy then
+                color = colors.orange
+                extra = " [Busy]"
+            end
+
+            --write cpu to monitor
+            advAndClear()
+            putText("CPU #"..i..extra, row, "left", color)
+            putText(storStr.."|"..proc, row, "right", colors.lightGray)
+        end
     end
-    --]]
-
-    clearToEnd(row+1)
 end
 
 function stockItem(name, displayName, amountToStock)
     --check system, do nothing if not found/cant craft
     item = ae2.getItem({name = name})
-    if not item.amount then
+    if not item or not item.amount then
         log("Item not in system: " .. name)
         return
     end
@@ -82,13 +98,9 @@ function stockItem(name, displayName, amountToStock)
         end
     end
 
-    --advance and clear line
-    row = row + 1
-    mon.setCursorPos(1,row)
-    mon.clearLine()
-
-    --write to monitor
+    --write item to monitor
     amountStr = amount.." / "..amountToStock
+    advAndClear()
     putText(displayName, row, "left", colors.lightGray)
     putText(amountStr, row, "right", color)
 end
@@ -133,6 +145,15 @@ function clearBox(fgColor, bgColor, xMin, xMax, yMin, yMax)
             mon.write(" ")
         end
     end
+end
+
+
+
+--advance and clear line
+function advAndClear()
+    row = row + 1
+    mon.setCursorPos(1,row)
+    mon.clearLine()
 end
 
 --Clear lines from startLine to end of monitor
