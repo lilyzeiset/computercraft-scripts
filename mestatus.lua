@@ -136,7 +136,7 @@ function clearBox(fgColor, bgColor, xMin, xMax, yMin, yMax)
 end
 
 --Clear lines from startLine to end of monitor
-clearToEnd(startLine)
+function clearToEnd(startLine)
     _, monH = mon.getSize()
 
     for i=startLine,monH do
