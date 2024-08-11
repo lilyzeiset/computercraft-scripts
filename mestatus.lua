@@ -16,7 +16,7 @@ function main()
     prepareMonitor()
 
     while true do
-        checkTable()
+        doTable()
         sleep(sleepTime)
     end
 end
@@ -27,7 +27,7 @@ function prepareMonitor()
     putText(title, 1, "center", colors.white)
 end
 
-function checkTable()
+function doTable()
     row = 2
     --Loop through the items and check if they need to be crafted
     for i = 1, #items do
@@ -47,6 +47,8 @@ function checkTable()
         checkCrafting(tName, dName, amt)
     end
     --]]
+
+    clearToEnd(row+1)
 end
 
 function stockItem(name, displayName, amountToStock)
@@ -106,7 +108,7 @@ function putText(text, line, pos, fgColor, bgColor, gap)
     bgColor = bgColor or colors.black
     gap = gap or 1
 
-    monW, _monH = mon.getSize()
+    monW, _ = mon.getSize()
     length = string.len(text)
 
     if pos == "center" then
@@ -130,6 +132,16 @@ function clearBox(fgColor, bgColor, xMin, xMax, yMin, yMax)
             mon.setCursorPos(xPos, yPos)
             mon.write(" ")
         end
+    end
+end
+
+--Clear lines from startLine to end of monitor
+clearToEnd(startLine)
+    _, monH = mon.getSize()
+
+    for i=startLine,monH do
+        mon.setCursorPos(1,i)
+        mon.clearLine()
     end
 end
 
