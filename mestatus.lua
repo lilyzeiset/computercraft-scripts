@@ -63,7 +63,7 @@ function stockItem(name, displayName, amountToStock)
     color = colors.green
     if amount < amountToStock then
         --Dont try to craft if not possible
-        craftable = isItemCraftable({name = name})
+        craftable = ae2.isItemCraftable({name = name})
         if not craftable then
             log("Item not craftable: " .. name)
             color = colors.red
@@ -80,8 +80,12 @@ function stockItem(name, displayName, amountToStock)
         end
     end
 
-    --write to monitor
+    --advance and clear line
     row = row + 1
+    mon.setCursorPos(1,row)
+    mon.clearLine()
+
+    --write to monitor
     amountStr = amount.." / "..amountToStock
     putText(displayName, row, "left", colors.lightGray)
     putText(amountStr, row, "right", color)
