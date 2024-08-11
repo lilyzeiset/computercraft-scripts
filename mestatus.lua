@@ -33,6 +33,9 @@ function worldInfo()
     time = ticks % 24000
     hour = 6 + math.floor(time/1000)
     min = math.floor((time % 1000)*(60/1000))
+    if min < 10 then
+        min = "0"..min
+    end
     timeStr = hour..":"..min
     dayStr = "Day "..day
 
@@ -40,10 +43,14 @@ function worldInfo()
     players = pd.getOnlinePlayers()
     plStr = "Online: "..#players
 
-    advAndClear()
+    --clear line
+    mon.setCursorPos(1,row)
+    mon.clearLine()
+
     putText(dayStr, row, "left", colors.white)
     putText(timeStr, row, "center", colors.white)
     putText(plStr, row, "right", colors.white)
+    advAndClear()
 end
 
 
