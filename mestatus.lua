@@ -29,6 +29,7 @@ end
 function worldInfo()
     --parse day/time from ticks
     ticks = env.getTime()
+    day = 1 + math.floor(time/24000)
     time = ticks % 24000
     hour = 6 + math.floor(time/1000)
     min = math.floor((time % 1000)*(60/1000))
@@ -36,6 +37,7 @@ function worldInfo()
         min = "0"..min
     end
     timeStr = hour..":"..min
+    dayStr = "Day "..day
 
     --moon phase
     moon = env.getMoonId()
@@ -126,9 +128,9 @@ function cpuCompare(a,b)
     a_proc = a.coProcessors
     b_proc = b.coProcessors
     if a_proc == b_proc then
-        return a.storage < b.storage
+        return a.storage > b.storage
     end
-    return a_proc < b_proc
+    return a_proc > b_proc
 end
 
 function stockItem(name, displayName, amountToStock)
