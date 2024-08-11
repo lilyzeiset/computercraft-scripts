@@ -29,7 +29,6 @@ end
 function worldInfo()
     --parse day/time from ticks
     ticks = env.getTime()
-    day = math.floor(ticks/24000)
     time = ticks % 24000
     hour = 6 + math.floor(time/1000)
     min = math.floor((time % 1000)*(60/1000))
@@ -37,7 +36,19 @@ function worldInfo()
         min = "0"..min
     end
     timeStr = hour..":"..min
-    dayStr = "Day "..day
+
+    --moon phase
+    moon = env.getMoonId()
+    phases = {
+        "Full moon", 
+        "Waning gibbous", 
+        "Third quarter", 
+        "Waning crescent", 
+        "New moon",
+        "Waxing crescent", 
+        "First quarter", 
+        "Waxing gibbous"
+    }
 
     --online players
     players = pd.getOnlinePlayers()
@@ -68,6 +79,8 @@ end
 
 function cpuDetails()
     cpus = ae2.getCraftingCPUs()
+    table.sort(cpus, cpuCompare)
+
     if cpus then
         advAndClear()
         putText("Crafting CPUs", row, "center", colors.white)
@@ -76,7 +89,7 @@ function cpuDetails()
             proc = cpus[i].coProcessors
             busy = cpus[i].isBusy
 
-            --convert number to thous(k) or mils(M)
+            --convert storage to thous(k) or mils(M)
             if stor > 999999 then
                 storStr = math.floor(stor/1000000).."M"
             elseif stor > 999 then
@@ -85,7 +98,14 @@ function cpuDetails()
                 storStr = stor
             end
 
-            --show if busy
+            --add label to processors
+            if proc == 1 then
+                procStr = proc.." core"
+            else
+                procStr = proc.." cores"
+            end
+
+            --show label if busy
             color = colors.white
             extra = ""
             if busy then
@@ -96,9 +116,19 @@ function cpuDetails()
             --write cpu to monitor
             advAndClear()
             putText("CPU #"..i..extra, row, "left", color)
-            putText(storStr.." | "..proc, row, "right", colors.lightGray)
+            putText(storStr.." | "..procStr, row, "right", colors.lightGray)
         end
     end
+end
+
+--compare function for CPUs
+function cpuCompare(a,b)
+    a_proc = a.coProcessors
+    b_proc = b.coProcessors
+    if a_proc == b_proc then
+        return a.storage < b.storage
+    end
+    return a_proc < b_proc
 end
 
 function stockItem(name, displayName, amountToStock)
@@ -160,9 +190,9 @@ function putText(text, line, pos, fgColor, bgColor, gap)
     if pos == "center" then
         x = 1+math.floor((monW-length)/2)
     elseif pos == "left" then
-        x = 1
+        x = 2
     elseif pos == "right" then
-        x = monW-length-(gap*2)
+        x = 2+monW-length-(gap*2)
     end
     clearBox(fgColor, bgColor, x, x+length+(2*gap), line, line)
     mon.setCursorPos(x, line)
