@@ -16,8 +16,8 @@ function main()
     mon.clear()
     while true do
         row = 1
+        worldInfo(true)
         cpuDetails()
-        worldInfo()
         itemsToCraft()
         clearToEnd(row+1)
         sleep(sleepTime)
@@ -25,10 +25,21 @@ function main()
 end
 
 --Get and display world info
-function worldInfo()
-    time = env.getTime()
+function worldInfo(showDay)
+
+    ticks = env.getTime()
+    day = math.floor(ticks/24000)
+    time = ticks % 24000
+    hour = 6 + math.floor(time/1000)
+    min = (time % 1000)*(60/1000)
+    timeStr = hour..":"..min
+    dayStr = ""
+    if showDay then
+        dayStr = ", Day "..day
+    end
+
     advAndClear()
-    putText(time, row, "center", colors.white)
+    putText(timeStr..dayStr, row, "center", colors.white)
 end
 
 
