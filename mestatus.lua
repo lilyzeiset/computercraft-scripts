@@ -24,7 +24,7 @@ end
 
 function prepareMonitor()
     mon.clear()
-    putText(title, 1, "center", color)
+    putText(title, 1, "center", colors.white)
 end
 
 function checkTable()
@@ -60,13 +60,22 @@ function stockItem(name, displayName, amountToStock)
     --craft items if needed
     amount = item.amount
     crafting = false
+    color = colors.green
     if amount < amountToStock then
+        --Dont try to craft if not possible
+        craftable = isItemCraftable({name = name})
+        if not craftable then
+            log("Item not craftable: " .. name)
+            color = colors.red
+        end
+
+        --Craft if possible and not already crafting
         crafting = ae2.isItemCrafting({name = name})
-        if not crafting then
-            count = amountToStock - amount
-            craftedItem = {name = name, count = count}
+        if craftable and not crafting then
+            amountToCraft = amountToStock - amount
+            craftedItem = {name = name, amountToCraft = amountToCraft}
+            log("Crafting " .. amountToCraft .. "x " .. name)
             ae2.craftItem(craftedItem)
-            log("Crafting " .. count .. "x " .. name)
             color = colors.blue
         end
     end
@@ -97,11 +106,11 @@ function putText(text, line, pos, fgColor, bgColor, gap)
     length = string.len(text)
 
     if pos == "center" then
-        x = math.floor((monW-length)/2)+1
+        x = 1+math.floor((monW-length)/2)
     elseif pos == "left" then
-        x = 2
+        x = 1
     elseif pos == "right" then
-        x=0
+        x = monW-length-(gap*2)
     end
     clearBox(fgColor, bgColor, x, x+length+(2*gap), line, line)
     mon.setCursorPos(x, line)
