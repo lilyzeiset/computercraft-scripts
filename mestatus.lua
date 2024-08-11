@@ -8,19 +8,29 @@ shouldLog = true
 
 ae2 = peripheral.find("meBridge")
 mon = peripheral.find("monitor")
+env = peripheral.find("environmentDetector")
 
 items = require("items")
-row = 1
 
 function main()
     mon.clear()
     while true do
+        row = 1
         cpuDetails()
+        worldInfo()
         itemsToCraft()
         clearToEnd(row+1)
         sleep(sleepTime)
     end
 end
+
+--Get and display world info
+function worldInfo()
+    time = env.getTime()
+    advAndClear()
+    putText(time, row, "center", colors.white)
+end
+
 
 --Loop through the items and check if they need to be crafted
 function itemsToCraft()
@@ -64,7 +74,7 @@ function cpuDetails()
             --write cpu to monitor
             advAndClear()
             putText("CPU #"..i..extra, row, "left", color)
-            putText(storStr.."|"..proc, row, "right", colors.lightGray)
+            putText(storStr.." | "..proc, row, "right", colors.lightGray)
         end
     end
 end
