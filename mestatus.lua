@@ -9,6 +9,7 @@ shouldLog = true
 ae2 = peripheral.find("meBridge")
 mon = peripheral.find("monitor")
 env = peripheral.find("environmentDetector")
+pd = peripheral.find("playerDetector")
 
 items = require("items")
 
@@ -16,7 +17,7 @@ function main()
     mon.clear()
     while true do
         row = 1
-        worldInfo(true)
+        worldInfo()
         cpuDetails()
         itemsToCraft()
         clearToEnd(row+1)
@@ -25,21 +26,24 @@ function main()
 end
 
 --Get and display world info
-function worldInfo(showDay)
-
+function worldInfo()
+    --parse day/time from ticks
     ticks = env.getTime()
     day = math.floor(ticks/24000)
     time = ticks % 24000
     hour = 6 + math.floor(time/1000)
-    min = (time % 1000)*(60/1000)
+    min = math.floor((time % 1000)*(60/1000))
     timeStr = hour..":"..min
-    dayStr = ""
-    if showDay then
-        dayStr = ", Day "..day
-    end
+    dayStr = "Day "..day
+
+    --online players
+    players = pd.getOnlinePlayers()
+    plStr = "Online: "..#players
 
     advAndClear()
-    putText(timeStr..dayStr, row, "center", colors.white)
+    putText(dayStr, row, "left", colors.white)
+    putText(timeStr, row, "center", colors.white)
+    putText(plStr, row, "right", colors.white)
 end
 
 
