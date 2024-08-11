@@ -54,6 +54,8 @@ function cpuDetails()
             end
 
             --show if busy
+            color = colors.white
+            extra = ""
             if busy then
                 color = colors.orange
                 extra = " [Busy]"
