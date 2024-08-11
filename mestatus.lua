@@ -25,7 +25,12 @@ function main()
     end
 end
 
---Get and display world info
+
+
+----------------------------
+-- World Info
+----------------------------
+
 function worldInfo()
     --parse day/time from ticks
     ticks = env.getTime()
@@ -66,6 +71,9 @@ function worldInfo()
     advAndClear()
 end
 
+----------------------------
+-- Crafting
+----------------------------
 
 --Loop through the items and check if they need to be crafted
 function itemsToCraft()
@@ -78,6 +86,48 @@ function itemsToCraft()
         stockItem(tName, dName, amt)
     end
 end
+
+function stockItem(name, displayName, amountToStock)
+    --check system, do nothing if not found/cant craft
+    item = ae2.getItem({name = name})
+    if not item or not item.amount then
+        log("Item not in system: " .. name)
+        return
+    end
+    
+    --craft items if needed
+    amount = item.amount
+    crafting = false
+    color = colors.green
+    if amount < amountToStock then
+        --Dont try to craft if not possible
+        craftable = ae2.isItemCraftable({name = name})
+        if not craftable then
+            log("Item not craftable: " .. name)
+            color = colors.red
+        end
+
+        --Craft if possible and not already crafting
+        crafting = ae2.isItemCrafting({name = name})
+        if craftable and not crafting then
+            amountToCraft = amountToStock - amount
+            craftedItem = {name = name, amountToCraft = amountToCraft}
+            log("Crafting " .. amountToCraft .. "x " .. name)
+            ae2.craftItem(craftedItem)
+            color = colors.blue
+        end
+    end
+
+    --write item to monitor
+    amountStr = amount.." / "..amountToStock
+    advAndClear()
+    putText(displayName, row, "left", colors.lightGray)
+    putText(amountStr, row, "right", color)
+end
+
+----------------------------
+-- CPUs
+----------------------------
 
 function cpuDetails()
     cpus = ae2.getCraftingCPUs()
@@ -133,43 +183,6 @@ function cpuCompare(a,b)
     return a_proc > b_proc
 end
 
-function stockItem(name, displayName, amountToStock)
-    --check system, do nothing if not found/cant craft
-    item = ae2.getItem({name = name})
-    if not item or not item.amount then
-        log("Item not in system: " .. name)
-        return
-    end
-    
-    --craft items if needed
-    amount = item.amount
-    crafting = false
-    color = colors.green
-    if amount < amountToStock then
-        --Dont try to craft if not possible
-        craftable = ae2.isItemCraftable({name = name})
-        if not craftable then
-            log("Item not craftable: " .. name)
-            color = colors.red
-        end
-
-        --Craft if possible and not already crafting
-        crafting = ae2.isItemCrafting({name = name})
-        if craftable and not crafting then
-            amountToCraft = amountToStock - amount
-            craftedItem = {name = name, amountToCraft = amountToCraft}
-            log("Crafting " .. amountToCraft .. "x " .. name)
-            ae2.craftItem(craftedItem)
-            color = colors.blue
-        end
-    end
-
-    --write item to monitor
-    amountStr = amount.." / "..amountToStock
-    advAndClear()
-    putText(displayName, row, "left", colors.lightGray)
-    putText(amountStr, row, "right", color)
-end
 
 
 
@@ -212,8 +225,6 @@ function clearBox(fgColor, bgColor, xMin, xMax, yMin, yMax)
         end
     end
 end
-
-
 
 --advance and clear line
 function advAndClear()
